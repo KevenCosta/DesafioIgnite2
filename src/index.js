@@ -1,8 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-
 const { v4: uuidv4, validate } = require('uuid');
-
+const { json } = require('body-parser');
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -10,19 +9,54 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const {username} = request.headers;
+  const user = users.find((user) => user.username === username) 
+  if(!user){
+    return response.status(404).json({error:"erro"})
+  }
+  request.user = user;
+  next();
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+  const {user} = request;//erro aki user sem chaves
+  const tamanhoTodos = user.todos.length//erro aki length como função ()
+  if(tamanhoTodos < 10 || user.pro == true){
+    next();
+  }
+  return response.status(403).json({error: "erro"})
+  
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const {username} = request.headers;
+  const {id} = request.params;
+  const user = users.find((user) => user.username === username) 
+  if(!user){
+    return response.status(404).json({error:"erro"})
+  }
+  const todos = user.todos.find((todos) => todos.id === id)
+  if(!todos){
+    return response.status(404).json({error:"erro"})
+  }
+  if(todos && id === uuidv4 ){
+    request.todo = todos; 
+    request.user = user;
+    next();
+  }
+  if(id !== uuidv4){
+  return response.status(400).json({error:"erro"})
+  }
 }
 
 function findUserById(request, response, next) {
-  // Complete aqui
+  const {id} = request.params;
+  const user = users.find((id) => users.id === id) 
+  if(!user){
+    return response.status(404).json({error:"erro"})
+  }
+  request.user = user;
+  next();
 }
 
 app.post('/users', (request, response) => {
