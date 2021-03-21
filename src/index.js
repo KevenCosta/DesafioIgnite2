@@ -29,29 +29,27 @@ function checksCreateTodosUserAvailability(request, response, next) {
 }
 
 function checksTodoExists(request, response, next) {
-  const {username} = request.headers;
-  const {id} = request.params;
+  const { username } = request.headers;
+  const { id } = request.params;
   const user = users.find((user) => user.username === username) 
+  //app.use(checksExistsUserAccount)
+  const todo = user.todos.find((todos) => todos.id === id)
   if(!user){
     return response.status(404).json({error:"erro"})
-  }
-  const todos = user.todos.find((todos) => todos.id === id)
-  if(!todos){
+  }else if(!todo){
     return response.status(404).json({error:"erro"})
-  }
-  if(todos && id === uuidv4 ){
-    request.todo = todos; 
+  }else if(id.validate){
+    return response.status(400).json({error:"erro"})
+  } else {
     request.user = user;
+    request.todo = todo;
     next();
-  }
-  if(id !== uuidv4){
-  return response.status(400).json({error:"erro"})
   }
 }
 
 function findUserById(request, response, next) {
   const {id} = request.params;
-  const user = users.find((id) => users.id === id) 
+  const user = users.find((user) => user.id === id) 
   if(!user){
     return response.status(404).json({error:"erro"})
   }
