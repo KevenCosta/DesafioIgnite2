@@ -25,33 +25,34 @@ function checksCreateTodosUserAvailability(request, response, next) {
     next();
   }
   return response.status(403).json({error: "erro"})
-  
 }
 
 function checksTodoExists(request, response, next) {
-  const {username} = request.headers;
-  const {id} = request.params;
-  const user = users.find((user) => user.username === username) 
-  if(!user){
-    return response.status(404).json({error:"erro"})
-  }
-  const todos = user.todos.find((todos) => todos.id === id)
-  if(!todos){
-    return response.status(404).json({error:"erro"})
-  }
-  if(todos && id === uuidv4 ){
-    request.todo = todos; 
-    request.user = user;
-    next();
-  }
-  if(id !== uuidv4){
-  return response.status(400).json({error:"erro"})
+  const { username } = request.headers;
+  const { id } = request.params;
+  const user = users.find((user) => user.username === username)   
+  
+  if(user){
+    if(validate(id)){
+      const todo = user.todos.find((todos) => todos.id === id)
+      if(todo){
+        request.user = user;
+        request.todo = todo;
+        next();
+      }else{
+        return response.status(404).json({error: "erro"})
+      }
+    }else{
+      return response.status(400).json({error: "erro"})
+    }
+  }else{
+    return response.status(404).json({error: "erro"})
   }
 }
 
 function findUserById(request, response, next) {
   const {id} = request.params;
-  const user = users.find((id) => users.id === id) 
+  const user = users.find((user) => user.id === id) 
   if(!user){
     return response.status(404).json({error:"erro"})
   }
